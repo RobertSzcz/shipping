@@ -156,8 +156,12 @@ defmodule Shipping.ShipperTest do
       timestamp: 1500
     }
 
-    assert {[], %Load{lat: 15.0, lng: 15.0}} =
-             Shipper.handle_vehicle_position_change(load, vehicle_position_change_event)
+    # vehicle_position_change_event |> IO.inspect
+    # load |> IO.inspect
+    Shipper.handle_vehicle_position_change(load, vehicle_position_change_event) |> IO.inspect
+
+    assert {[], %Load{lat: 15.0, lng: 15.0}} = Shipper.handle_vehicle_position_change(load, vehicle_position_change_event)
+
   end
 
   describe "handle_load_delivery" do

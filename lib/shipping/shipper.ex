@@ -11,6 +11,7 @@ defmodule Shipping.Shipper do
   alias Shipping.Driver.Events.LoadRequestSent
   alias Shipping.Driver.Events.LoadPickedUp
   alias Shipping.Driver.Events.LoadDelivered
+  alias Shipping.Driver.Events.VehiclePositionChanged
 
   defmodule Load do
     @fields [
@@ -107,6 +108,17 @@ defmodule Shipping.Shipper do
     events = []
 
     {events, new_load}
+  end
+
+  @doc "Handles VehiclePositionChanged event from driver"
+  @spec handle_vehicle_position_change(%Load{}, %VehiclePositionChanged{}) :: %Load{}
+  def handle_vehicle_position_change(
+        %Load{uuid: load_uuid, picked_up: [%LoadPickedUp{driver_id: driver_uuid}]} = load,
+        %VehiclePositionChanged{driver_id: driver_uuid, lat: lat, lng: lng} = event
+      ) do
+    new_load = load |> Map.put(:lat, lat) |> Map.put(:lng, lng)
+
+    {[], new_load}
   end
 
   @doc "Handles LoadDelivered event from driver"
