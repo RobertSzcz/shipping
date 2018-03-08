@@ -12,6 +12,7 @@ defmodule Shipping.ShipperTest do
   alias Shipping.Driver.Events.LoadRequestSent
   alias Shipping.Driver.Events.LoadPickedUp
   alias Shipping.Driver.Events.LoadDelivered
+  alias Shipping.Driver.Events.VehiclePositionChanged
 
   test "create_load returns a correct event" do
     command = %CreateLoad{
@@ -121,6 +122,42 @@ defmodule Shipping.ShipperTest do
       assert {[], %Load{picked_up: [^pick_up_event]}} =
                Shipper.handle_load_pickup(load, pick_up_event)
     end
+  end
+
+  test "handle_vehicle_position_change updates all packed loads positions" do
+    command = %CreateLoad{
+      uuid: "load_uuid",
+      shipper_id: "shipper_id",
+      car_type: :small,
+      number_of_trips: 5,
+      start_date_millis: 1000,
+      lat: 10.0,
+      lng: 10.0
+    }
+
+    {:ok, event} = Shipper.create_load(command)
+    load = Load.from_event(event)
+
+    pick_up_event = %LoadPickedUp{
+      uuid: "uuid",
+      driver_id: "driver_id",
+      load_id: "load_uuid",
+      load_request_id: "load_request_id",
+      timestamp: 1000
+    }
+
+    {_, load} = Shipper.handle_load_pickup(load, pick_up_event)
+
+    vehicle_position_change_event = %VehiclePositionChanged{
+      uuid: "uuid",
+      driver_id: "driver_id",
+      lat: 15.0,
+      lng: 15.0,
+      timestamp: 1500
+    }
+
+    assert {[], %Load{lat: 15.0, lng: 15.0}} =
+             Shipper.handle_vehicle_position_change(load, vehicle_position_change_event)
   end
 
   describe "handle_load_delivery" do
