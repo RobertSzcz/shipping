@@ -113,7 +113,7 @@ defmodule Shipping.Shipper do
   @doc "Handles VehiclePositionChanged event from driver"
   @spec handle_vehicle_position_change(%Load{}, %VehiclePositionChanged{}) :: %Load{}
   def handle_vehicle_position_change(
-        %Load{uuid: load_uuid, picked_up: [%LoadPickedUp{driver_id: driver_uuid}]} = load,
+        %Load{picked_up: [%LoadPickedUp{driver_id: driver_uuid}]} = load,
         %VehiclePositionChanged{driver_id: driver_uuid, lat: lat, lng: lng} = event
       ) do
     new_load = load |> Map.put(:lat, lat) |> Map.put(:lng, lng)
